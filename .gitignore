@@ -1,2 +1,6 @@
 .env
 .env.local
+*.keras
+*.h5
+node_modules
+__pycache__

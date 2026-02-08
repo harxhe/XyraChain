@@ -1,0 +1,4 @@
+tensorflow
+opencv-python-headless
+numpy
+json
