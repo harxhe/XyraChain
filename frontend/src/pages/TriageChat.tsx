@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
     id: number;
@@ -23,32 +25,44 @@ export default function TriageChat() {
         scrollToBottom();
     }, [messages]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!input.trim()) return;
 
-        const userMsg: Message = { id: Date.now(), sender: 'user', text: input };
+        const userText = input;
+        const userMsg: Message = { id: Date.now(), sender: 'user', text: userText };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         setIsTyping(true);
 
-        // Simulate AI response logic
-        setTimeout(() => {
-            let aiResponse = '';
-            const lowerInput = input.toLowerCase();
+        try {
+            const response = await fetch('http://localhost:8000/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userText })
+            });
 
-            if (lowerInput.includes('yes')) {
-                aiResponse = "I see. How long have you had this cough? Is it producing any phlegm?";
-            } else if (lowerInput.includes('no')) {
-                aiResponse = "That is good. Are you experiencing any chest pain or difficulty breathing?";
-            } else if (lowerInput.includes('pain') || lowerInput.includes('breath')) {
-                aiResponse = "Understood. The AI scan combined with your symptoms suggests patterns consistent with early-stage pneumonia. I strongly recommend sealing this record and consulting a specialist.";
-            } else {
-                aiResponse = "Thank you for the information. Do you have any fever or chills?";
-            }
+            if (!response.ok) throw new Error('Failed to get response');
 
-            setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'ai', text: aiResponse }]);
+            const data = await response.json();
+
+            const aiMsg: Message = {
+                id: Date.now() + 1,
+                sender: 'ai',
+                text: data.answer || "I'm having trouble processing that request."
+            };
+
+            setMessages(prev => [...prev, aiMsg]);
+        } catch (error) {
+            console.error(error);
+            const errorMsg: Message = {
+                id: Date.now() + 1,
+                sender: 'ai',
+                text: "Network error: Unable to reach the AI service. Ensure the backend is running."
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -110,11 +124,32 @@ export default function TriageChat() {
                                             }`}>
                                             <iconify-icon icon={msg.sender === 'user' ? "solar:user-bold" : "solar:robot-2-bold"} width="16"></iconify-icon>
                                         </div>
+
                                         <div className={`p-4 md:px-6 md:py-4 rounded-3xl text-sm leading-relaxed shadow-md ${msg.sender === 'user'
                                             ? 'bg-indigo-600 text-white rounded-br-sm'
                                             : 'bg-[#1a1a1a] border border-white/5 text-slate-200 rounded-bl-sm'
                                             }`}>
-                                            {msg.text}
+                                            {msg.sender === 'user' ? (
+                                                msg.text
+                                            ) : (
+                                                <div className="prose prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
+                                                    <ReactMarkdown
+                                                        remarkPlugins={[remarkGfm]}
+                                                        components={{
+                                                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                            p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                                                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                            ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
+                                                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                            li: ({ node, ...props }) => <li className="text-slate-200" {...props} />,
+                                                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                            strong: ({ node, ...props }) => <strong className="font-semibold text-white" {...props} />,
+                                                        }}
+                                                    >
+                                                        {msg.text}
+                                                    </ReactMarkdown>
+                                                </div>
+                                            )}
                                         </div>
                                         <span className="text-[10px] text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity self-center">
                                             {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

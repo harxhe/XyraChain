@@ -7,9 +7,10 @@ from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 
 # --- LangChain Classic (2026 Legacy Support) ---
-# These are moved to langchain_classic for backward compatibility
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain
-from langchain_classic.chains import create_retrieval_chain
+# --- LangChain ---
+# Use standard imports
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain
 
 # --- Local Project Imports ---
 from app.core.prompt import triage_prompt
@@ -18,6 +19,10 @@ from app.core.prompt import triage_prompt
 load_dotenv()
 
 def get_rag_chain():
+    groq_api_key = os.getenv("GROQ_API_KEY")
+    if not groq_api_key:
+        raise ValueError("GROQ_API_KEY not found in .env file. Please add your Groq API Key.")
+
     # 1. Initialize local embeddings (Must match ingest.py)
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     
