@@ -92,8 +92,8 @@ export default function ChatWidget() {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300 ${isOpen
-                    ? 'bg-rose-500 text-white rotate-90'
-                    : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:scale-110'
+                    ? 'bg-rose-500 text-white rotate-90 shadow-rose-500/20'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white hover:scale-110 shadow-emerald-500/20'
                     }`}
             >
                 {isOpen ? (
@@ -105,21 +105,21 @@ export default function ChatWidget() {
 
             {/* Chat Window */}
             <div
-                className={`fixed bottom-24 right-6 z-40 w-96 max-w-[calc(100vw-3rem)] h-[600px] max-h-[calc(100vh-8rem)] bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right ${isOpen
-                    ? 'scale-100 opacity-100 translate-y-0'
+                className={`fixed bottom-24 right-6 z-40 w-96 max-w-[calc(100vw-3rem)] h-[600px] max-h-[calc(100vh-8rem)] bg-white border border-stone-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right dark:bg-[#0a0a0a] dark:border-white/10 dark:shadow-none ${isOpen
+                    ? 'scale-100 opacity-100 translate-y-0 shadow-stone-900/10'
                     : 'scale-90 opacity-0 translate-y-10 pointer-events-none'
                     }`}
             >
                 {/* Header */}
-                <div className="p-4 bg-white/5 border-b border-white/5 flex items-center justify-between backdrop-blur-md">
+                <div className="p-4 bg-stone-50/80 border-b border-stone-100 flex items-center justify-between backdrop-blur-md dark:bg-white/5 dark:border-white/5 transition-colors">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                             <iconify-icon icon="solar:robot-2-bold-duotone" width="24"></iconify-icon>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-white text-sm">Xyra AI Assistant</h3>
-                            <p className="text-xs text-green-400 flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                            <h3 className="font-semibold text-stone-800 text-sm dark:text-white transition-colors">Xyra AI Assistant</h3>
+                            <p className="text-xs text-emerald-600 flex items-center gap-1 dark:text-emerald-400">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Online
                             </p>
                         </div>
@@ -127,7 +127,7 @@ export default function ChatWidget() {
                 </div>
 
                 {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-stone-200 scrollbar-track-transparent">
                     {messages.map((msg) => (
                         <div
                             key={msg.id}
@@ -135,14 +135,14 @@ export default function ChatWidget() {
                         >
                             <div
                                 className={`max-w-[80%] p-3.5 rounded-2xl text-sm leading-relaxed ${msg.sender === 'user'
-                                    ? 'bg-indigo-600 text-white rounded-br-none'
-                                    : 'bg-white/10 text-slate-200 rounded-bl-none border border-white/5'
+                                    ? 'bg-emerald-600 text-white rounded-br-none shadow-sm'
+                                    : 'bg-stone-100 text-stone-700 rounded-bl-none border border-stone-200 dark:bg-white/10 dark:text-stone-300 dark:border-white/5'
                                     }`}
                             >
                                 {msg.sender === 'user' ? (
                                     msg.text
                                 ) : (
-                                    <div className="prose prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
+                                    <div className="prose prose-stone prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
                                         <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             components={{
@@ -151,9 +151,9 @@ export default function ChatWidget() {
                                                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                 ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
                                                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                li: ({ node, ...props }) => <li className="text-slate-200" {...props} />,
+                                                li: ({ node, ...props }) => <li className="text-stone-600 dark:text-stone-300" {...props} />,
                                                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                strong: ({ node, ...props }) => <strong className="font-semibold text-white" {...props} />,
+                                                strong: ({ node, ...props }) => <strong className="font-semibold text-stone-800 dark:text-white" {...props} />,
                                             }}
                                         >
                                             {msg.text}
@@ -166,10 +166,10 @@ export default function ChatWidget() {
 
                     {isLoading && (
                         <div className="flex justify-start">
-                            <div className="bg-white/5 border border-white/5 p-4 rounded-2xl rounded-bl-none flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:-0.3s]"></div>
-                                <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:-0.15s]"></div>
-                                <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce"></div>
+                            <div className="bg-stone-100 border border-stone-200 p-4 rounded-2xl rounded-bl-none flex items-center gap-2 dark:bg-white/10 dark:border-white/5 transition-colors">
+                                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:-0.3s]"></div>
+                                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:-0.15s]"></div>
+                                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce"></div>
                             </div>
                         </div>
                     )}
@@ -177,7 +177,7 @@ export default function ChatWidget() {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 bg-white/5 border-t border-white/5 backdrop-blur-md">
+                <div className="p-4 bg-stone-50 border-t border-stone-200 backdrop-blur-md dark:bg-black/40 dark:border-white/5 transition-colors">
                     <div className="relative flex items-center gap-2">
                         <input
                             type="text"
@@ -185,18 +185,18 @@ export default function ChatWidget() {
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyPress}
                             placeholder="Ask about your symptoms..."
-                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:bg-black/60 transition-all"
+                            className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 pr-12 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-emerald-500/50 focus:bg-white transition-all shadow-sm dark:bg-[#111] dark:border-white/10 dark:text-stone-200 dark:placeholder-stone-600 dark:focus:bg-[#161616]"
                             disabled={isLoading}
                         />
                         <button
                             onClick={handleSendMessage}
                             disabled={!inputValue.trim() || isLoading}
-                            className="absolute right-2 p-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-500 transition-colors flex items-center justify-center"
+                            className="absolute right-2 p-2 rounded-lg bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-500 transition-colors flex items-center justify-center"
                         >
                             <iconify-icon icon="solar:plain-3-bold" width="18"></iconify-icon>
                         </button>
                     </div>
-                    <p className="text-[10px] text-slate-500 mt-2 text-center">
+                    <p className="text-[10px] text-stone-400 mt-2 text-center">
                         AI can make mistakes. Consider checking important information.
                     </p>
                 </div>
