@@ -51,7 +51,8 @@ export default function ChatWidget() {
                 body: JSON.stringify({ message: userMessage.text }),
             });
 
-            const data = await response.json();
+            const raw = await response.text();
+            const data = raw ? JSON.parse(raw) : {};
 
             if (!response.ok && !data.response) {
                 throw new Error(data.error || 'Network response was not ok');
@@ -69,7 +70,9 @@ export default function ChatWidget() {
             const errorMessage: Message = {
                 id: Date.now().toString(),
                 sender: 'bot',
-                text: "Sorry, I'm having trouble connecting to the server. Please check if the backend is running.",
+                text: error instanceof Error
+                    ? `Sorry, I couldn't reach the AI service: ${error.message}`
+                    : "Sorry, I couldn't reach the AI service. Please check the backend and chatbot.",
             };
             setMessages((prev) => [...prev, errorMessage]);
         } finally {

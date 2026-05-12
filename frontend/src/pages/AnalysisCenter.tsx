@@ -44,11 +44,7 @@ export default function AnalysisCenter() {
     const [mintingResult, setMintingResult] = useState<{ txHash: string; cid: string } | null>(null);
     const contractAddress = APP_CONFIG.contractAddress;
 
-    const getPneumoniaProbability = (analysisResult: AnalysisResult) => (
-        analysisResult.diagnosis === 'PNEUMONIA'
-            ? analysisResult.confidence
-            : Number((100 - analysisResult.confidence).toFixed(2))
-    );
+    const getPneumoniaProbability = (analysisResult: AnalysisResult) => analysisResult.confidence;
 
     const handleDrag = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -557,13 +553,13 @@ export default function AnalysisCenter() {
                                     <div className="flex gap-3">
                                         <button
                                             onClick={downloadReport}
-                                            className="flex-1 py-3 px-4 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-600 text-sm font-medium transition-colors"
+                                            className="flex-1 py-3 px-4 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-600 text-sm font-medium transition-colors dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/5"
                                         >
                                             Download Report
                                         </button>
                                         <button
                                             onClick={consultDoctor}
-                                            className="flex-1 py-3 px-4 rounded-xl bg-stone-800 text-white text-sm font-medium hover:bg-stone-900 transition-colors shadow-lg shadow-stone-200"
+                                            className="flex-1 py-3 px-4 rounded-xl bg-stone-800 text-white text-sm font-medium hover:bg-stone-900 transition-colors shadow-lg shadow-stone-300/30 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 dark:shadow-none"
                                         >
                                             Consult Doctor
                                         </button>

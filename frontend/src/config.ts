@@ -1,6 +1,7 @@
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() ?? '';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+  ?? (import.meta.env.DEV ? 'http://localhost:5000' : '');
 
 export const APP_CONFIG = {
   apiBaseUrl: apiBaseUrl ? trimTrailingSlash(apiBaseUrl) : '',

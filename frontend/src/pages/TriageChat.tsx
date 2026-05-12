@@ -42,7 +42,8 @@ export default function TriageChat() {
                 body: JSON.stringify({ message: userText })
             });
 
-            const data = await response.json();
+            const raw = await response.text();
+            const data = raw ? JSON.parse(raw) : {};
 
             if (!response.ok && !data.response) {
                 throw new Error(data.error || 'Failed to get response');
@@ -60,7 +61,9 @@ export default function TriageChat() {
             const errorMsg: Message = {
                 id: Date.now() + 1,
                 sender: 'ai',
-                text: "Network error: Unable to reach the AI service. Ensure the backend is running."
+                text: error instanceof Error
+                    ? `Unable to contact the AI service: ${error.message}`
+                    : 'Unable to contact the AI service. Ensure the backend and chatbot are running.'
             };
             setMessages(prev => [...prev, errorMsg]);
         } finally {
