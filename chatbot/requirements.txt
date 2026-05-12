@@ -8,3 +8,5 @@ chromadb
 uvicorn
 fastapi
 python-dotenv
+python-multipart
+requests
