@@ -16,18 +16,18 @@ from langchain.chains import create_retrieval_chain
 # --- Local Project Imports ---
 from app.core.prompt import triage_prompt
 
-CHATBOT_ROOT = Path(__file__).resolve().parents[2]
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
 os.environ.setdefault("HF_HUB_DISABLE_IMPLICIT_TOKEN", "1")
 
-# Initialize environment from the chatbot package root
-load_dotenv(CHATBOT_ROOT / ".env")
+# Initialize environment from the backend package root
+load_dotenv(BACKEND_ROOT / ".env")
 
 
-def _resolve_chatbot_path(env_key: str, default: str) -> str:
+def _resolve_backend_path(env_key: str, default: str) -> str:
     configured = os.getenv(env_key, default)
     configured_path = Path(configured)
     if not configured_path.is_absolute():
-        configured_path = CHATBOT_ROOT / configured_path
+        configured_path = BACKEND_ROOT / configured_path
     return str(configured_path.resolve())
 
 def get_rag_chain():
@@ -37,7 +37,7 @@ def get_rag_chain():
 
     # 1. Initialize local embeddings (Must match ingest.py)
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    vector_db_path = _resolve_chatbot_path("VECTOR_DB_PATH", "data/processed")
+    vector_db_path = _resolve_backend_path("VECTOR_DB_PATH", "data/processed")
     
     # 2. Load the persistent Vector DB from your data/processed folder
     vectorstore = Chroma(

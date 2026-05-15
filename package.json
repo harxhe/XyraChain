@@ -4,11 +4,9 @@
   "version": "1.0.0",
   "scripts": {
     "predev": "node scripts/clear-dev-ports.js",
-    "dev": "concurrently \"npm --prefix frontend run dev\" \"npm run dev:api\"",
-    "dev:legacy-backend": "npm --prefix backend run dev",
-    "dev:api": "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir chatbot --env-file chatbot/.env",
-    "dev:chatbot": "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir chatbot --env-file chatbot/.env",
-    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "dev": "concurrently \"npm --prefix frontend run dev\" \"npm run dev:backend\"",
+    "dev:backend": "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir backend --env-file backend/.env",
+    "build": "npm --prefix frontend run build",
     "start": "npm run dev"
   },
   "devDependencies": {

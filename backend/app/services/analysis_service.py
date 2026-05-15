@@ -5,7 +5,7 @@ from pathlib import Path
 os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
 
 AI_MODULE_ROOT = Path(__file__).resolve().parents[3] / "ai-module"
-UPLOADS_ROOT = Path(__file__).resolve().parents[3] / "chatbot" / "uploads"
+UPLOADS_ROOT = Path(__file__).resolve().parents[2] / "uploads"
 UPLOADS_ROOT.mkdir(parents=True, exist_ok=True)
 
 if str(AI_MODULE_ROOT) not in sys.path:

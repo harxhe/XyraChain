@@ -1,11 +1,10 @@
 # XyraChain
 
-XyraChain is a multi-service health-tech project that combines:
+XyraChain is a health-tech project that combines:
 
 - a React + Vite frontend
-- a TypeScript + Express backend
+- a unified Python backend for analysis, uploads, chat, and report pinning
 - a Python AI module for chest X-ray prediction and Grad-CAM generation
-- a FastAPI chatbot service for medical triage guidance
 - a Hardhat/XDC smart contract for storing report metadata on-chain
 
 The main product flow is:
@@ -13,17 +12,23 @@ The main product flow is:
 1. A user uploads a chest X-ray in the frontend.
 2. The backend stores the file and calls the local Python AI module.
 3. The AI module returns a diagnosis and a Grad-CAM heatmap.
-4. The backend pins the generated report JSON to IPFS through Pinata.
+4. The backend uses the integrated chat and Pinata flows for consultation and report storage.
 5. The frontend uses the connected wallet to mint the report CID to the XDC contract.
+
+## Current Architecture
+
+- `frontend/` is the only web client and is deployed as a static site.
+- `backend/` is the only server application and handles uploads, AI analysis, chat, and Pinata integration.
+- `ai-module/` is imported by `backend/` for TensorFlow inference and Grad-CAM generation.
+- `blockchain/` is separate and only needed when deploying or updating the contract.
 
 ## Repository Structure
 
 ```text
 XyraChain/
 |- frontend/      React + Vite + TypeScript app
-|- backend/       Express + TypeScript API
+|- backend/       FastAPI backend for uploads, analysis, chat, and IPFS
 |- ai-module/     Python model inference + Grad-CAM scripts
-|- chatbot/       FastAPI + LangChain triage assistant
 |- blockchain/    Hardhat project for XDC smart contract
 ```
 
@@ -58,20 +63,18 @@ Location: `backend/`
 Main responsibilities:
 
 - accept image uploads
-- call the local Python AI scripts
+- run AI prediction and Grad-CAM generation
 - serve generated upload and heatmap files
+- provide triage-focused chat responses
 - pin report JSON to IPFS with Pinata
-- proxy chat requests to the FastAPI chatbot service
 
 Important files:
 
-- `backend/src/index.ts`
-- `backend/src/routes/analysisRoutes.ts`
-- `backend/src/routes/chatRoutes.ts`
-- `backend/src/controllers/analysisController.ts`
-- `backend/src/controllers/chatController.ts`
-- `backend/src/services/pythonService.ts`
-- `backend/src/services/pinataService.ts`
+- `backend/app/main.py`
+- `backend/app/engine/rag_engine.py`
+- `backend/app/services/analysis_service.py`
+- `backend/app/services/pinata_service.py`
+- `backend/scripts/ingest.py`
 
 ### AI Module
 
@@ -90,22 +93,6 @@ Important files:
 - `ai-module/gradcam.py`
 - `ai-module/preprocess.py`
 - `ai-module/model_loader.py`
-
-### Chatbot
-
-Location: `chatbot/`
-
-Main responsibilities:
-
-- provide triage-focused chat responses
-- use a retrieval-augmented generation flow based on Chroma + LangChain + Groq
-
-Important files:
-
-- `chatbot/app/main.py`
-- `chatbot/app/engine/rag_engine.py`
-- `chatbot/app/core/prompt.py`
-- `chatbot/scripts/ingest.py`
 
 ### Blockchain
 
@@ -127,9 +114,8 @@ Important files:
 ## Tech Stack
 
 - Frontend: React, Vite, TypeScript, Tailwind CSS, ethers, axios, jsPDF
-- Backend: Node.js, Express, TypeScript, multer, axios, dotenv
+- Backend: FastAPI, LangChain, Chroma, Groq, Pinata, Python uploads
 - AI: Python, TensorFlow, OpenCV, NumPy
-- Chatbot: FastAPI, LangChain, Chroma, Groq, HuggingFace embeddings
 - Blockchain: Hardhat, Solidity, ethers, XDC Apothem testnet
 
 ## Prerequisites
@@ -150,7 +136,7 @@ Install these before running the project:
 Copy `frontend/.env.example` to `frontend/.env` and set:
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:8000
 VITE_CONTRACT_ADDRESS=
 VITE_CHAIN_ID=51
 VITE_CHAIN_ID_HEX=0x33
@@ -167,32 +153,19 @@ VITE_NATIVE_CURRENCY_DECIMALS=18
 Copy `backend/.env.example` to `backend/.env` and set:
 
 ```env
-PORT=5000
-CORS_ORIGIN=http://localhost:3000
-CHATBOT_SERVICE_URL=http://127.0.0.1:8000/chat
-PYTHON_BIN=python
-AI_MODULE_PATH=../ai-module
-PINATA_API_KEY=your_pinata_api_key
-PINATA_SECRET_API_KEY=your_pinata_secret_key
-```
-
-Notes:
-
-- `CHATBOT_SERVICE_URL` should point to the deployed chatbot service endpoint.
-- `PYTHON_BIN` can be changed if Python is not available as `python` on your server.
-- `AI_MODULE_PATH` must point to the real `ai-module` location from the backend runtime.
-
-### Chatbot
-
-Copy `chatbot/.env.example` to `chatbot/.env` and set at minimum:
-
-```env
 GROQ_API_KEY=
 GROQ_MODEL_NAME=llama-3.3-70b-versatile
 VECTOR_DB_PATH=./data/processed
 RAW_DATA_PATH=./data/raw
-BLOCKCHAIN_RPC_URL=http://127.0.0.1:8545
+PINATA_API_KEY=your_pinata_api_key
+PINATA_SECRET_API_KEY=your_pinata_secret_key
+CORS_ORIGIN=http://localhost:3000
 ```
+
+Notes:
+
+- `VECTOR_DB_PATH` should point to the embedded Chroma store in `backend/data/processed`.
+- the backend serves both analysis and chat on the same public URL.
 
 ### Blockchain
 
@@ -210,7 +183,6 @@ Install dependencies for each Node service:
 
 ```bash
 cd frontend && npm install
-cd backend && npm install
 cd blockchain && npm install
 ```
 
@@ -218,29 +190,20 @@ Install Python dependencies:
 
 ```bash
 pip install -r ai-module/requirements.txt
-pip install -r chatbot/requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 ## Local Development
 
-### 1. Start the chatbot
+### 1. Start the backend API
 
 ```bash
-python chatbot/app/main.py
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir backend --env-file backend/.env
 ```
 
 Default port: `8000`
 
-### 2. Start the backend
-
-```bash
-cd backend
-npm run dev
-```
-
-Default port: `5000`
-
-### 3. Start the frontend
+### 2. Start the frontend
 
 ```bash
 cd frontend
@@ -262,8 +225,10 @@ Backend:
 
 ```bash
 cd backend
-npm run build
+python -m compileall app
 ```
+
+Backend uploads, chat, and analysis are provided by the Python API at port `8000`.
 
 Blockchain:
 
@@ -301,12 +266,8 @@ npx hardhat run scripts/verify.ts --network apothem
 - `GET /` - health check
 - `POST /api/analysis/upload` - upload an image and run AI analysis
 - `POST /api/analysis/generate-report` - pin a report JSON to IPFS
-- `POST /api/chat/message` - proxy a chat request to the chatbot service
+- `POST /api/chat/message` - submit a triage chat message
 - `GET /uploads/:file` - access uploaded/generated images
-
-### Chatbot
-
-- `POST /chat` - submit triage message payloads
 
 ## Upload Constraints
 
@@ -326,6 +287,39 @@ Important note:
 
 ## Deployment Notes
 
+## Free Deployment
+
+Recommended split:
+
+- deploy `frontend/` to Vercel
+- deploy `backend/` to Render free tier
+
+### Vercel
+
+- set project root to `frontend/`
+- set `VITE_API_BASE_URL` to your public Render backend URL
+- `frontend/vercel.json` is included for SPA rewrites
+
+### Render
+
+- use the included `render.yaml`, or create a Python web service with root directory `backend/`
+- set the required env vars from `backend/.env.example`
+- use this start command:
+
+```bash
+python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --env-file .env
+```
+
+- use this build command:
+
+```bash
+pip install -r requirements.txt && pip install -r ../ai-module/requirements.txt
+```
+
+The `backend/data/processed` knowledge base is kept in the repo so chat works without a separate ingest step.
+
+## Deployment Notes
+
 ### Frontend
 
 - build with `npm run build`
@@ -335,16 +329,11 @@ Important note:
 
 ### Backend
 
-- deploy together with access to the Python runtime and `ai-module`
-- ensure the server can reach the chatbot service URL
+- deploy the Python backend together with access to the `ai-module`
+- ensure the vector database exists at `backend/data/processed`
+- ensure `GROQ_API_KEY` is valid
 - set correct `CORS_ORIGIN`
 - configure secure production secrets for Pinata
-
-### Chatbot
-
-- ensure the vector database exists at `VECTOR_DB_PATH`
-- ensure `GROQ_API_KEY` is valid
-- expose the service only where needed, or keep it internal behind the backend proxy
 
 ### Blockchain
 
@@ -356,7 +345,7 @@ Important note:
 - `frontend/src/pages/PatientVault.tsx` still uses mock data
 - `frontend/src/pages/Profile.tsx` still uses mock data
 - minted reports currently send `chatLogs: []` from the frontend analysis flow
-- the backend depends on local Python subprocess execution, which may need container/process tuning in production
+- the backend depends on local TensorFlow + LangChain startup, which can be slow on cold boot
 - the frontend production bundle is large and Vite warns about chunk size during build
 
 ## Troubleshooting
@@ -365,8 +354,6 @@ Important note:
 
 Check:
 
-- `PYTHON_BIN` points to a working Python installation
-- `AI_MODULE_PATH` points to the correct `ai-module`
 - TensorFlow and OpenCV dependencies are installed
 - the model file exists inside `ai-module/model/`
 
@@ -374,8 +361,7 @@ Check:
 
 Check:
 
-- the chatbot service is running
-- `CHATBOT_SERVICE_URL` is correct
+- the backend API is running
 - Groq credentials are valid
 
 ### Minting fails
@@ -397,11 +383,10 @@ Check:
 
 The codebase was updated to improve deployment readiness by:
 
+- unifying chat and analysis in one Python backend
 - replacing hardcoded service URLs with env-based config
-- unifying chat requests through the backend proxy
 - removing mock/fallback Pinata success behavior
-- making Python runtime and AI module paths configurable
-- enforcing backend upload validation
+- enforcing upload validation
 - fixing frontend confidence typing and wallet resync behavior
 
 ## License
