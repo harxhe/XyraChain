@@ -12,3 +12,4 @@ __pycache__/
 frontend/dist/
 backend/uploads/*
 !backend/uploads/.gitkeep
+!ai-module/model/best_cnn.keras

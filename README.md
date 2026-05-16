@@ -94,6 +94,10 @@ Important files:
 - `ai-module/preprocess.py`
 - `ai-module/model_loader.py`
 
+Deployment note:
+
+- `ai-module/model/best_cnn.keras` must be present in the deployed repo because the backend loads it directly at runtime.
+
 ### Blockchain
 
 Location: `blockchain/`
