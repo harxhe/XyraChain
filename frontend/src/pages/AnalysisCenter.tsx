@@ -15,6 +15,17 @@ interface AnalysisResult {
     heatmap: string;
 }
 
+const sampleResults = [
+    {
+        label: 'Normal Sample',
+        src: new URL('../../../test/results/normaltest.png', import.meta.url).href,
+    },
+    {
+        label: 'Abnormal Sample',
+        src: new URL('../../../test/results/abnormaltest.png', import.meta.url).href,
+    },
+] as const;
+
 const getImageData = (url: string): Promise<string> => {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -42,6 +53,8 @@ export default function AnalysisCenter() {
     const [result, setResult] = useState<AnalysisResult | null>(null);
     const [isMinting, setIsMinting] = useState(false);
     const [mintingResult, setMintingResult] = useState<{ txHash: string; cid: string } | null>(null);
+    const [showSamples, setShowSamples] = useState(false);
+    const [selectedSample, setSelectedSample] = useState<(typeof sampleResults)[number] | null>(null);
     const contractAddress = APP_CONFIG.contractAddress;
 
     const getPneumoniaProbability = (analysisResult: AnalysisResult) => analysisResult.confidence;
@@ -329,6 +342,13 @@ export default function AnalysisCenter() {
                     <p className="text-stone-500 dark:text-stone-400 transition-colors">
                         Upload a chest X-ray to detect potential anomalies using our decentralized AI network.
                     </p>
+                    <button
+                        onClick={() => setShowSamples(true)}
+                        className="mt-5 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:bg-white/10"
+                    >
+                        <iconify-icon icon="solar:gallery-wide-linear" width="14"></iconify-icon>
+                        View Sample Results
+                    </button>
                 </div>
 
                 <div className="max-w-6xl mx-auto">
@@ -611,6 +631,61 @@ export default function AnalysisCenter() {
                             >
                                 Close
                             </button>
+                        </div>
+                    </div>
+                )}
+                {showSamples && (
+                    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
+                        <div
+                            className="absolute inset-0 bg-stone-900/70 backdrop-blur-sm"
+                            onClick={() => setShowSamples(false)}
+                        ></div>
+                        <div className="relative z-10 w-full max-w-5xl rounded-3xl border border-stone-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#0f0f0f]">
+                            <div className="mb-5 flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-xl font-semibold text-stone-800 dark:text-white">Sample Results</h3>
+                                    <p className="text-sm text-stone-500 dark:text-stone-400">Quick gallery of the result images from `test/results`.</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowSamples(false)}
+                                    className="rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-800 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-white"
+                                >
+                                    <iconify-icon icon="solar:close-circle-linear" width="22"></iconify-icon>
+                                </button>
+                            </div>
+                            <div className="grid gap-5 md:grid-cols-2">
+                                {sampleResults.map((sample) => (
+                                    <div key={sample.label} className="rounded-2xl border border-stone-200 bg-stone-50 p-4 dark:border-white/10 dark:bg-white/5">
+                                        <p className="mb-3 text-sm font-medium text-stone-700 dark:text-stone-200">{sample.label}</p>
+                                        <button
+                                            onClick={() => setSelectedSample(sample)}
+                                            className="block w-full overflow-hidden rounded-xl bg-black/90 aspect-[4/3] transition-transform hover:scale-[1.01]"
+                                        >
+                                            <img src={sample.src} alt={sample.label} className="h-full w-full object-contain" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {selectedSample && (
+                    <div className="fixed inset-0 z-[95] flex items-center justify-center p-4">
+                        <div
+                            className="absolute inset-0 bg-black/85 backdrop-blur-sm"
+                            onClick={() => setSelectedSample(null)}
+                        ></div>
+                        <div className="relative z-10 w-full max-w-6xl">
+                            <button
+                                onClick={() => setSelectedSample(null)}
+                                className="absolute right-2 top-2 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
+                            >
+                                <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
+                            </button>
+                            <div className="overflow-hidden rounded-3xl border border-white/10 bg-black p-4 shadow-2xl">
+                                <img src={selectedSample.src} alt={selectedSample.label} className="max-h-[85vh] w-full object-contain" />
+                            </div>
+                            <p className="mt-3 text-center text-sm text-white/80">{selectedSample.label}</p>
                         </div>
                     </div>
                 )}

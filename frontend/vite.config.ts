@@ -15,5 +15,8 @@ export default defineConfig({
   server: {
     port: 3000, // Optional: specify a port
     open: true, // Optional: opens browser on start
+    fs: {
+      allow: [path.resolve(__dirname, '..')],
+    },
   },
 });
