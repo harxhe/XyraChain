@@ -304,10 +304,11 @@ Recommended split:
 
 - use the included `render.yaml`, or create a Python web service with root directory `backend/`
 - set the required env vars from `backend/.env.example`
+- do not use `--env-file` on Render; set environment variables in the Render dashboard
 - use this start command:
 
 ```bash
-python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --env-file .env
+python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
 
 - use this build command:
