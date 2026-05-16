@@ -1,0 +1,4 @@
+-r requirements.txt
+langchain-community==0.2.12
+langchain-text-splitters==0.2.2
+pypdf==4.3.1

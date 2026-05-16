@@ -193,6 +193,13 @@ pip install -r ai-module/requirements.txt
 pip install -r backend/requirements.txt
 ```
 
+If you need to rebuild the knowledge base from the PDFs, install the extra ingest dependencies too:
+
+```bash
+pip install -r backend/requirements.ingest.txt
+python backend/scripts/ingest.py
+```
+
 ## Local Development
 
 ### 1. Start the backend API
@@ -318,6 +325,7 @@ pip install -r requirements.txt && pip install -r ../ai-module/requirements.txt
 ```
 
 The `backend/data/processed` knowledge base is kept in the repo so chat works without a separate ingest step.
+The runtime requirements pin CPU-only PyTorch so Render does not try to install large CUDA packages.
 
 ## Deployment Notes
 

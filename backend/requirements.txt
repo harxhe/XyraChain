@@ -1,12 +1,15 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 langchain==0.2.14
-langchain-community==0.2.12
 langchain-core==0.2.33
 langchain-groq==0.1.9
 langchain-huggingface==0.0.3
-langchain-chroma
-chromadb
-uvicorn
-fastapi
-python-dotenv
-python-multipart
-requests
+langchain-chroma==0.1.4
+chromadb==0.5.5
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-dotenv==1.0.1
+python-multipart==0.0.9
+requests==2.32.3
+sentence-transformers==3.0.1
+torch==2.5.1+cpu
